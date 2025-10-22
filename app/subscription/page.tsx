@@ -1,7 +1,10 @@
+import { PricingTable } from "@clerk/nextjs";
 
 
 export default function Subscription() {
     return (
-        <div>Subscription</div>
+        <main className="flex items-center justify-center ">
+            <PricingTable/>
+        </main>
     )
 }
