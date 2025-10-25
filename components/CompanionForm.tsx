@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -23,17 +22,21 @@ import {
 } from "@/components/ui/select"
 import { subjects } from "@/constants"
 import { Textarea } from "./ui/textarea"
+import { createCompanion } from "@/lib/actions/companion.actions"
+import { redirect } from "next/navigation"
 
+// Schema: usamos z.coerce.number() para aceptar "15" y convertirlo a 15 automáticamente.
 const formSchema = z.object({
-    name: z.string().min(1, { message: 'Companion is required' }),
-    subject: z.string().min(1, { message: 'Subject is required' }),
-    topic: z.string().min(1, { message: 'Topic is required' }),
-    voice: z.string().min(1, { message: 'Voice is required' }),
-    style: z.string().min(1, { message: 'Style is required' }),
-    duration: z.number().min(1, { message: 'Duration is required' }),
+    name: z.string().min(1, { message: "Companion is required" }),
+    subject: z.string().min(1, { message: "Subject is required" }),
+    topic: z.string().min(1, { message: "Topic is required" }),
+    voice: z.string().min(1, { message: "Voice is required" }),
+    style: z.string().min(1, { message: "Style is required" }),
+    duration: z.coerce.number().min(1, { message: "Duration is required" }),
 })
+
 export default function CompanionForm() {
-    // 1. Define your form.
+    // useForm tipado con el esquema -> z.infer<typeof formSchema>
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -42,14 +45,22 @@ export default function CompanionForm() {
             topic: "",
             voice: "",
             style: "",
-            duration: 15
-
+            // IMPORTANT: default value must match el tipo inferido (number)
+            duration: 15,
         },
     })
 
-    // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+    // onSubmit recibirá `values` con duration ya como number (gracias a coerce)
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        // no hace falta convertir duración manualmente: ya es number
+        const companion = await createCompanion(values)
+
+        if (companion) {
+            redirect(`/companions/${companion.id}`)
+        } else {
+            console.log("Failed to create a companion.")
+            redirect("/")
+        }
     }
 
     return (
@@ -85,11 +96,7 @@ export default function CompanionForm() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {subjects.map((subject, index) => (
-                                            <SelectItem
-                                                key={index}
-                                                value={subject}
-                                                className="capitalize"
-                                            >
+                                            <SelectItem key={index} value={subject} className="capitalize">
                                                 {subject}
                                             </SelectItem>
                                         ))}
@@ -120,25 +127,13 @@ export default function CompanionForm() {
                         <FormItem>
                             <FormLabel>Voice</FormLabel>
                             <FormControl>
-                                <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    defaultValue={field.value}
-                                >
+                                <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                                     <SelectTrigger className="input">
                                         <SelectValue placeholder="Select the voice" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem
-                                            value="female"
-                                        >
-                                            Female
-                                        </SelectItem>
-                                        <SelectItem
-                                            value="male"
-                                        >
-                                            Male
-                                        </SelectItem>
+                                        <SelectItem value="female">Female</SelectItem>
+                                        <SelectItem value="male">Male</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </FormControl>
@@ -153,25 +148,13 @@ export default function CompanionForm() {
                         <FormItem>
                             <FormLabel>Style</FormLabel>
                             <FormControl>
-                                <Select
-                                    onValueChange={field.onChange}
-                                    value={field.value}
-                                    defaultValue={field.value}
-                                >
+                                <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                                     <SelectTrigger className="input">
                                         <SelectValue placeholder="Select the style" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem
-                                            value="formal"
-                                        >
-                                            Formal
-                                        </SelectItem>
-                                        <SelectItem
-                                            value="casual"
-                                        >
-                                            Casual
-                                        </SelectItem>
+                                        <SelectItem value="formal">Formal</SelectItem>
+                                        <SelectItem value="casual">Casual</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </FormControl>
@@ -186,20 +169,23 @@ export default function CompanionForm() {
                         <FormItem>
                             <FormLabel>Estimated session duration in minutes</FormLabel>
                             <FormControl>
+                                {/* input tipo number está bien; RHF manejará el evento y Zod resolverá/coerce */}
                                 <Input
                                     type="number"
-                                    placeholder="15" 
-                                    {...field} 
-                                    className="input"/>
+                                    placeholder="15"
+                                    {...field}
+                                    className="input"
+                                    min={1}
+                                    step={1}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-                <Button 
-                type="submit"
-                className="w-full cursor-pointer"
-                >Build Your Companion</Button>
+                <Button type="submit" className="w-full cursor-pointer">
+                    Build Your Companion
+                </Button>
             </form>
         </Form>
     )
