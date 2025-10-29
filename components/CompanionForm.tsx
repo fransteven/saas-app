@@ -96,7 +96,11 @@ export default function CompanionForm() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {subjects.map((subject, index) => (
-                                            <SelectItem key={index} value={subject} className="capitalize">
+                                            <SelectItem
+                                                key={index}
+                                                value={subject}
+                                                className="capitalize"
+                                            >
                                                 {subject}
                                             </SelectItem>
                                         ))}
