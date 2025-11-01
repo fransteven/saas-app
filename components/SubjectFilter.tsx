@@ -4,21 +4,17 @@ import { useEffect, useState } from "react"
 import {
     Select,
     SelectContent,
-    SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
 import { subjects } from "@/constants"
 import { formUrlQuery, removeKeysFromUrlQuery } from "@jsmastery/utils"
-import { usePathname, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 
 
 
 export default function SubjectFilter() {
-    const pathname = usePathname()
-
     const router = useRouter()
 
     const searchParams = useSearchParams()
@@ -41,9 +37,9 @@ export default function SubjectFilter() {
                 key:'subject',
                 value:subject,
             })
-            router.push(newUrl, {scroll:false})
         }
-    }, [subject])
+        router.push(newUrl, {scroll:false})
+    }, [subject, router, searchParams])
     return (
         <div className="border border-black rounded-lg">
             <Select

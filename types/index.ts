@@ -1,3 +1,5 @@
+import z from "zod";
+
 // type User = {
 //   name: string;
 //   email: string;
@@ -17,16 +19,16 @@ enum Subject {
   business = "business",
 }
 
-type Companion = Models.DocumentList<Models.Document> & {
+/*type Companion = Models.DocumentList<Models.Document> & {
   $id: string;
   name: string;
   subject: Subject;
   topic: string;
   duration: number;
   bookmarked: boolean;
-};
+};*/
 
-interface CreateCompanion {
+export interface CreateCompanion {
   name: string;
   subject: string;
   topic: string;
@@ -35,7 +37,7 @@ interface CreateCompanion {
   duration: number;
 }
 
-interface GetAllCompanions {
+export interface GetAllCompanions {
   limit?: number;
   page?: number;
   subject?: string | string[];
@@ -81,3 +83,18 @@ interface CompanionComponentProps {
   voice: string;
   style: string;
 }
+
+export const companionSchema = z.object({
+  id:z.string(),
+  created_at: z.string(),
+  name: z.string(),
+  subject:z.string(),
+  topic:z.string(),
+  style:z.string(),
+  duration:z.number(),
+  author:z.string()
+})
+
+export const companionsSchema = z.array(companionSchema)
+
+export type CompanionRequest = z.infer<typeof companionSchema>

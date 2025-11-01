@@ -3,6 +3,9 @@
 import { auth } from "@clerk/nextjs/server"
 import { createSupabaseClient } from "../supabase";
 
+import { companionSchema, CreateCompanion, GetAllCompanions } from "../../types/index";
+import { ValidationError } from "../utils";
+
 export const createCompanion = async (formData: CreateCompanion) => {
 
     //auth() -> Obtiene el estado de sesión actual del usuario
@@ -37,9 +40,28 @@ export const getAllCompanions = async ({ limit = 10, page = 1, subject, topic }:
     }
 
     query = query.range((page - 1) * limit, page * limit - 1)
-    const {data: companions, error} = await query
+    const { data: companions, error } = await query
 
-    if(error) throw new Error(error.message)
+    if (error) throw new Error(error.message)
 
     return companions
+}
+
+export const getCompanion = async (id: string) => {
+    const supabase = createSupabaseClient()
+    const { data, error } = await supabase
+        .from('companions')
+        .select('*')
+        .eq('id', id)
+        .single()
+
+    if (error) return console.log(error)
+
+    const validatedData = companionSchema.safeParse(data)
+    if (!validatedData.success) {
+        throw new ValidationError('Validation failed for companion data', validatedData.error.issues)
+    }
+    console.log(validatedData.data)
+
+    return validatedData.data
 }
