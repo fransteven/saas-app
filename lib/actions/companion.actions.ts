@@ -57,6 +57,7 @@ export const getCompanion = async (id: string) => {
 
     if (error) return console.log(error)
 
+
     const validatedData = companionSchema.safeParse(data)
     if (!validatedData.success) {
         throw new ValidationError('Validation failed for companion data', validatedData.error.issues)

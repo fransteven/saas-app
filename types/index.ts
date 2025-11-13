@@ -1,3 +1,4 @@
+import { voices } from "@/constants";
 import z from "zod";
 
 // type User = {
@@ -68,12 +69,12 @@ interface Avatar {
 }
 
 
-interface SavedMessage {
+export interface SavedMessage {
   role: "user" | "system" | "assistant";
   content: string;
 }
 
-interface CompanionComponentProps {
+export interface CompanionComponentProps {
   companionId: string;
   subject: string;
   topic: string;
@@ -92,7 +93,8 @@ export const companionSchema = z.object({
   topic:z.string(),
   style:z.string(),
   duration:z.number(),
-  author:z.string()
+  author:z.string(),
+  voice: z.string()
 })
 
 export const companionsSchema = z.array(companionSchema)
