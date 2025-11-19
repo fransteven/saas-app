@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import soundwaves from '@/constants/soundwaves.json'
+import { addToSessionHistory } from "@/lib/actions/companion.actions";
 
 
 enum CallStatus {
@@ -42,14 +43,15 @@ export default function CompanionComponent({ companionId, subject, topic, name, 
         const onCallEnd = () => {
             setCallStatus(CallStatus.FINISHED)
             setIsSpeaking(false)
+            addToSessionHistory(companionId)
         }
         const onMessage = (message: Message) => {
-            if(message.type === "transcript" && message.transcriptType === "final"){
+            if (message.type === "transcript" && message.transcriptType === "final") {
                 const newMessage = {
                     role: message.role,
                     content: message.transcript,
                 }
-                setMessages((prev)=>[newMessage, ...prev])
+                setMessages((prev) => [newMessage, ...prev])
             }
         }
         const onSpeachStart = () => setIsSpeaking(true)
@@ -91,18 +93,18 @@ export default function CompanionComponent({ companionId, subject, topic, name, 
         setIsMuted(!isMuted)
     }
 
-    const handleCall = async()=>{
+    const handleCall = async () => {
         setCallStatus(CallStatus.CONNECTING)
         const assistantOverrides = {
-            variableValues : {subject, topic, style},
-            clientMessages : ['transcript'],
-            serverMessages : [],
+            variableValues: { subject, topic, style },
+            clientMessages: ['transcript'],
+            serverMessages: [],
         }
 
         // @ts-expect-error Voice API vapi.start signature is not fully typed in current library version
         vapi.start(configureAssistant(voice, style), assistantOverrides)
     }
-    const handleDisconnect = async()=>{
+    const handleDisconnect = async () => {
         setCallStatus(CallStatus.FINISHED)
         setIsSpeaking(false)
         vapi.stop()
@@ -115,18 +117,18 @@ export default function CompanionComponent({ companionId, subject, topic, name, 
                     <div className="companion-avatar" style={{ background: getSubjectColor(subject) }}>
                         <div className={
                             cn(
-                                "absolute transition-opacity duration-300", 
-                                (callStatus === CallStatus.FINISHED || callStatus === CallStatus.INACTIVE || (callStatus === CallStatus.ACTIVE && !isSpeaking)) 
-                                    ? "opacity-100" 
-                                    : "opacity-0", 
+                                "absolute transition-opacity duration-300",
+                                (callStatus === CallStatus.FINISHED || callStatus === CallStatus.INACTIVE || (callStatus === CallStatus.ACTIVE && !isSpeaking))
+                                    ? "opacity-100"
+                                    : "opacity-0",
                                 callStatus === CallStatus.CONNECTING && "animate-pulse"
                             )}>
                             <Image src={`/icons/${subject}.svg`} alt={subject} width={150} height={150} className="max-sm:w-fit" />
                         </div>
                         <div className={cn(
-                            'absolute transition-opacity duration-300', 
-                            (callStatus === CallStatus.ACTIVE && isSpeaking) 
-                                ? 'opacity-100' 
+                            'absolute transition-opacity duration-300',
+                            (callStatus === CallStatus.ACTIVE && isSpeaking)
+                                ? 'opacity-100'
                                 : 'opacity-0'
                         )}>
                             <Lottie
@@ -150,8 +152,8 @@ export default function CompanionComponent({ companionId, subject, topic, name, 
                             className="rounded-lg"
                         />
                     </div>
-                    <button 
-                        className="btn-mic" 
+                    <button
+                        className="btn-mic"
                         onClick={toggleMicrophone}
                         disabled={callStatus !== CallStatus.ACTIVE}
                     >
@@ -170,9 +172,9 @@ export default function CompanionComponent({ companionId, subject, topic, name, 
                             cn('rounded-lg py-2 cursor-pointer transition-colors w-full text-white', callStatus === CallStatus.ACTIVE ? 'bg-red-700' : 'bg-primary',
                                 callStatus === CallStatus.CONNECTING && 'animate-pulse'
                             )}
-                        onClick={callStatus ===CallStatus.ACTIVE ? handleDisconnect : handleCall}
+                        onClick={callStatus === CallStatus.ACTIVE ? handleDisconnect : handleCall}
                     >
-                        
+
                         {
                             callStatus === CallStatus.ACTIVE
                                 ? "End Session"
@@ -186,8 +188,8 @@ export default function CompanionComponent({ companionId, subject, topic, name, 
             <section className="transcript">
                 <div className="transcript-message no-scrollbar">
                     {
-                        messages.map((message, index)=>{
-                            if(message.role === 'assistant'){
+                        messages.map((message, index) => {
+                            if (message.role === 'assistant') {
                                 return (
                                     <p key={index} className="max-sm:text-sm">
                                         {
