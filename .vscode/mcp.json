@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "Sentry": {
+      "url": "https://mcp.sentry.dev/mcp/universidad-nacional-abierta-y/javascript-nextjs",
+      "type": "http"
+    }
+  }
+}
