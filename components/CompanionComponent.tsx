@@ -104,6 +104,7 @@ export default function CompanionComponent({ companionId, subject, topic, name, 
         // @ts-expect-error Voice API vapi.start signature is not fully typed in current library version
         vapi.start(configureAssistant(voice, style), assistantOverrides)
     }
+
     const handleDisconnect = async () => {
         setCallStatus(CallStatus.FINISHED)
         setIsSpeaking(false)

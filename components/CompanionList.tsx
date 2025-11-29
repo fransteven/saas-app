@@ -14,7 +14,7 @@ import Link from "next/link";
 interface CompanionListProps {
   title: string;
   companions?: Companion[];
-  classNames: string;
+  classNames?: string;
 }
 
 export default function CompanionList({
@@ -24,7 +24,7 @@ export default function CompanionList({
 }: CompanionListProps) {
   return (
     <article className={cn("companion-list", classNames)}>
-      <h2 className="font-bold text-3xl">Recent Sessions</h2>
+      <h2 className="font-bold text-3xl">{title}</h2>
       <Table className="">
         <TableHeader>
           <TableRow>
